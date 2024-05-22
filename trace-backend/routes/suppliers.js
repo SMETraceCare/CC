@@ -2,7 +2,11 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+<<<<<<< HEAD
 // Get all suppliers
+=======
+// Dapatkan semua suppliers
+>>>>>>> 0798d49ca19dc8dbe01b5fb489bf120473fef254
 router.get('/', (req, res) => {
   db.query('SELECT * FROM Supplier', (err, results) => {
     if (err) return res.status(500).json({ error: err });
@@ -10,6 +14,7 @@ router.get('/', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
 // Get a specific supplier
 router.get('/:id', (req, res) => {
   const { id } = req.params;
@@ -20,6 +25,9 @@ router.get('/:id', (req, res) => {
 });
 
 // Create a new supplier
+=======
+// Tambahkan supplier baru
+>>>>>>> 0798d49ca19dc8dbe01b5fb489bf120473fef254
 router.post('/', (req, res) => {
   const { nama_supplier, deskripsi_supplier, alamat_supplier, lokasi_supplier, kontak_supplier, email_supplier, password_supplier } = req.body;
   db.query('INSERT INTO Supplier SET ?', { nama_supplier, deskripsi_supplier, alamat_supplier, lokasi_supplier, kontak_supplier, email_supplier, password_supplier }, (err, result) => {
@@ -28,6 +36,7 @@ router.post('/', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
 // Update a supplier
 router.put('/:id', (req, res) => {
   const { id } = req.params;
@@ -47,4 +56,6 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+=======
+>>>>>>> 0798d49ca19dc8dbe01b5fb489bf120473fef254
 module.exports = router;
