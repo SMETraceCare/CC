@@ -57,31 +57,67 @@ router.get('/qr/:code', (req, res) => {
   });
 });
 
-// Create a new product
+// Create Product
 router.post('/', (req, res) => {
-  const { nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah } = req.body;
-  db.query('INSERT INTO Produk_Batik SET ?', { nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah }, (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ id: result.insertId, ...req.body });
+  const { nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah_id } = req.body;
+
+  db.query('INSERT INTO Produk_Batik (nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah_id], (err, result) => {
+          if (err) {
+              return res.status(500).json({ error: true, message: err.message });
+          }
+          res.json({ error: false, message: 'Product created successfully', productId: result.insertId });
+      });
+});
+
+// Read all Products
+router.get('/', (req, res) => {
+  db.query('SELECT * FROM Produk_Batik', (err, results) => {
+      if (err) {
+          return res.status(500).json({ error: true, message: err.message });
+      }
+      res.json({ error: false, message: 'success', results });
   });
 });
 
-// Update a product
+// Read single Product
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+
+  db.query('SELECT * FROM Produk_Batik WHERE produk_id = ?', [id], (err, results) => {
+      if (err) {
+          return res.status(500).json({ error: true, message: err.message });
+      }
+      if (results.length === 0) {
+          return res.status(404).json({ error: true, message: 'Product not found' });
+      }
+      res.json({ error: false, message: 'success', result: results[0] });
+  });
+});
+
+// Update Product
 router.put('/:id', (req, res) => {
   const { id } = req.params;
-  const { nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah } = req.body;
-  db.query('UPDATE Produk_Batik SET ? WHERE produk_id = ?', [{ nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah }, id], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ id, ...req.body });
-  });
+  const { nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah_id } = req.body;
+
+  db.query('UPDATE Produk_Batik SET nama_produk = ?, deskripsi_produk = ?, harga_produk = ?, foto_produk = ?, umkm_id = ?, supplier_id = ?, barang_mentah = ? WHERE produk_id = ?',
+      [nama_produk, deskripsi_produk, harga_produk, foto_produk, umkm_id, supplier_id, barang_mentah_id, id], (err) => {
+          if (err) {
+              return res.status(500).json({ error: true, message: err.message });
+          }
+          res.json({ error: false, message: 'Product updated successfully' });
+      });
 });
 
-// Delete a product
+// Delete Product
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
-  db.query('DELETE FROM Produk_Batik WHERE produk_id = ?', [id], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ message: 'Product deleted successfully' });
+
+  db.query('DELETE FROM Produk_Batik WHERE produk_id = ?', [id], (err) => {
+      if (err) {
+          return res.status(500).json({ error: true, message: err.message });
+      }
+      res.json({ error: false, message: 'Product deleted successfully' });
   });
 });
 
