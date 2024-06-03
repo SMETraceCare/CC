@@ -1,2 +1,44 @@
-node_modules
+# Node.js modules
+node_modules/
+
+# Environment variables file
 .env
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Debugger configurations
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Optional coverage directory for testing frameworks
+coverage/
+
+# IDE directories
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+tmp/
+temp/
+
+# Optional dependency directories
+jspm_packages/
