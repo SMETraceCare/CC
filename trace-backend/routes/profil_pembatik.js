@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 require('dotenv').config();
 
 // Middleware for token verification
@@ -18,10 +18,31 @@ const verifyToken = (req, res, next) => {
     });
 };
 
+// Helper function to validate year
+const validateYear = (year) => {
+    const currentYear = new Date().getFullYear();
+    return year > 1900 && year <= currentYear;
+};
+
+// Helper function to validate name length
+const validateName = (name) => {
+    return name.length > 0 && name.length <= 100;
+};
+
 // Add Profile Pembatik
 router.post('/', verifyToken, upload.single('image'), (req, res) => {
     const { name, startedYear } = req.body;
-    const image = req.file.path;
+    const image = req.file ? req.file.buffer : null;
+
+    if (!image) {
+        return res.status(400).json({ error: true, message: 'Image is required.' });
+    }
+    if (!validateName(name)) {
+        return res.status(400).json({ error: true, message: 'Name must be between 1 and 100 characters long.' });
+    }
+    if (!validateYear(startedYear)) {
+        return res.status(400).json({ error: true, message: 'Invalid started year.' });
+    }
 
     db.query('INSERT INTO Profil_Pembatik (nama_pembatik, foto_pembatik, tanggal_mulai) VALUES (?, ?, ?)',
         [name, image, startedYear], (err, result) => {
@@ -43,7 +64,7 @@ router.get('/', verifyToken, (req, res) => {
             profileId: `profile-${result.pembatik_id}`,
             name: result.nama_pembatik,
             startedYear: result.tanggal_mulai,
-            image: result.foto_pembatik
+            image: result.foto_pembatik.toString('base64') // Convert to base64
         }));
 
         res.json({ error: false, message: 'success', result: formattedResults });
@@ -71,7 +92,7 @@ router.get('/:id', verifyToken, (req, res) => {
                 profileId: `profile-${result.pembatik_id}`,
                 name: result.nama_pembatik,
                 startedYear: result.tanggal_mulai,
-                image: result.foto_pembatik
+                image: result.foto_pembatik.toString('base64') // Convert to base64
             }
         });
     });
@@ -90,7 +111,7 @@ router.get('/umkm/:umkm_id', verifyToken, (req, res) => {
             profileId: `profile-${result.pembatik_id}`,
             name: result.nama_pembatik,
             startedYear: result.tanggal_mulai,
-            image: result.foto_pembatik
+            image: result.foto_pembatik.toString('base64') // Convert to base64
         }));
 
         res.json({ error: false, message: 'success', result: formattedResults });
@@ -101,7 +122,14 @@ router.get('/umkm/:umkm_id', verifyToken, (req, res) => {
 router.put('/:id', verifyToken, upload.single('image'), (req, res) => {
     const { id } = req.params;
     const { name, startedYear } = req.body;
-    const image = req.file.path;
+    const image = req.file ? req.file.buffer : null;
+
+    if (!validateName(name)) {
+        return res.status(400).json({ error: true, message: 'Name must be between 1 and 100 characters long.' });
+    }
+    if (!validateYear(startedYear)) {
+        return res.status(400).json({ error: true, message: 'Invalid started year.' });
+    }
 
     db.query('UPDATE Profil_Pembatik SET nama_pembatik = ?, foto_pembatik = ?, tanggal_mulai = ? WHERE pembatik_id = ?',
         [name, image, startedYear, id], (err) => {

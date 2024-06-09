@@ -18,6 +18,18 @@ const verifyToken = (req, res, next) => {
     });
 };
 
+// Validate email format
+const validateEmail = (email) => {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@"]+\.)+[^<>()[\]\\.,;:\s@"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+};
+
+// Validate phone number format
+const validatePhoneNumber = (phoneNumber) => {
+    const re = /^62\d{10,18}$/; // Must start with 62 and be between 12 and 20 digits long
+    return re.test(phoneNumber);
+};
+
 // Get UMKM Profile
 router.get('/:id', verifyToken, (req, res) => {
     const { id } = req.params;
@@ -59,6 +71,15 @@ router.get('/:id', verifyToken, (req, res) => {
 router.post('/', (req, res) => {
     const { nama_umkm, deskripsi_umkm, alamat_umkm, kontak_umkm } = req.body;
 
+    // Validate input
+    if (!nama_umkm || !deskripsi_umkm || !alamat_umkm || !kontak_umkm) {
+        return res.status(400).json({ error: true, message: 'All fields are required' });
+    }
+
+    if (!validatePhoneNumber(kontak_umkm)) {
+        return res.status(400).json({ error: true, message: 'PhoneNumber must start with "62" and be between 12 and 20 characters long' });
+    }
+
     db.query('INSERT INTO UMKM (nama_umkm, deskripsi_umkm, alamat_umkm, kontak_umkm) VALUES (?, ?, ?, ?)',
     [nama_umkm, deskripsi_umkm, alamat_umkm, kontak_umkm], (err, result) => {
         if (err) {
@@ -78,8 +99,17 @@ router.put('/:id', verifyToken, upload.none(), (req, res) => {
     const { id } = req.params;
     const { name, email, description, address, phoneNumber } = req.body;
 
-    if (phoneNumber.length < 12 || phoneNumber.length > 20) {
-        return res.status(400).json({ error: true, message: 'phoneNumber must be at least 12 characters, max 20 characters' });
+    // Validate input
+    if (!name || !email || !description || !address || !phoneNumber) {
+        return res.status(400).json({ error: true, message: 'All fields are required' });
+    }
+
+    if (!validateEmail(email)) {
+        return res.status(400).json({ error: true, message: 'Invalid email format' });
+    }
+
+    if (!validatePhoneNumber(phoneNumber)) {
+        return res.status(400).json({ error: true, message: 'PhoneNumber must start with "62" and be between 12 and 20 characters long' });
     }
 
     db.query('UPDATE UMKM SET nama_umkm = ?, deskripsi_umkm = ?, alamat_umkm = ?, kontak_umkm = ? WHERE umkm_id = ?',
@@ -93,13 +123,13 @@ router.put('/:id', verifyToken, upload.none(), (req, res) => {
                     return res.status(500).json({ error: true, message: err.message });
                 }
 
-                res.json({ error: false, message: 'Success Update Profile Supplier' });
+                res.json({ error: false, message: 'Success Update Profile UMKM' });
             });
         });
 });
 
 // Delete UMKM
-router.delete('/:id', (req, res) => {
+router.delete('/:id', verifyToken, (req, res) => {
     const { id } = req.params;
 
     db.query('DELETE FROM UMKM WHERE umkm_id = ?', [id], (err) => {
