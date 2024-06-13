@@ -7,13 +7,17 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 require('dotenv').config();
 
+// Body parser middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const qrCodeRoutes = require('./routes/qr_codes');
 const productsRouter = require('./routes/products');
 const suppliersRouter = require('./routes/suppliers');
 const umkmRouter = require('./routes/umkm');
 const profilPembatikRouter = require('./routes/profil_pembatik');
 const barangMentahRouter = require('./routes/barang_mentah');
 const authRouter = require('./routes/auth');
-//const qrCodeRouter = require('./routes/qr_codes');
 
 app.use(bodyParser.json());
 app.use('/products', productsRouter);
@@ -22,7 +26,7 @@ app.use('/umkm', umkmRouter);
 app.use('/profil_pembatik', profilPembatikRouter);
 app.use('/barang_mentah', barangMentahRouter);
 app.use('/auth', authRouter);
-//app.use('/qr_codes', qrCodeRouter);
+app.use('/qr_codes', qrCodeRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
