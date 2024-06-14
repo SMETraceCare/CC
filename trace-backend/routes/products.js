@@ -58,7 +58,7 @@ router.get('/', authenticateToken, (req, res) => {
 });
 
 // Read single Product by ID
-router.get('/:id', authenticateToken, (req, res) => {
+router.get('/:id', (req, res) => {
   const { id } = req.params;
   const query = `
     SELECT pb.*, umkm.nama_umkm, s.nama_supplier, bm.nama_barang_mentah, pp.nama_pembatik 

@@ -31,7 +31,7 @@ const validateName = (name) => {
 
 // Add Profile Pembatik
 router.post('/', verifyToken, upload.single('image'), (req, res) => {
-    const { name, startedYear } = req.body;
+    const { name, startedYear, description, sme_id } = req.body;
     const image = req.file ? req.file.buffer : null;
 
     if (!image) {
@@ -44,8 +44,8 @@ router.post('/', verifyToken, upload.single('image'), (req, res) => {
         return res.status(400).json({ error: true, message: 'Invalid started year.' });
     }
 
-    db.query('INSERT INTO Profil_Pembatik (nama_pembatik, foto_pembatik, tanggal_mulai) VALUES (?, ?, ?)',
-        [name, image, startedYear], (err, result) => {
+    db.query('INSERT INTO Profil_Pembatik (nama_pembatik, foto_pembatik, tanggal_mulai, deskripsi_pembatik, umkm_id) VALUES (?, ?, ?, ?, ?)',
+        [name, image, startedYear, description, sme_id], (err, result) => {
             if (err) {
                 return res.status(500).json({ error: true, message: err.message });
             }
@@ -64,6 +64,8 @@ router.get('/', verifyToken, (req, res) => {
             profileId: `profile-${result.pembatik_id}`,
             name: result.nama_pembatik,
             startedYear: result.tanggal_mulai,
+            description: result.deskripsi_pembatik,
+            smeId: result.umkm_id,
             image: result.foto_pembatik.toString('base64') // Convert to base64
         }));
 
@@ -92,6 +94,8 @@ router.get('/:id', verifyToken, (req, res) => {
                 profileId: `profile-${result.pembatik_id}`,
                 name: result.nama_pembatik,
                 startedYear: result.tanggal_mulai,
+                description: result.deskripsi_pembatik,
+                smeId: result.umkm_id,
                 image: result.foto_pembatik.toString('base64') // Convert to base64
             }
         });
@@ -111,6 +115,8 @@ router.get('/umkm/:umkm_id', verifyToken, (req, res) => {
             profileId: `profile-${result.pembatik_id}`,
             name: result.nama_pembatik,
             startedYear: result.tanggal_mulai,
+            description: result.deskripsi_pembatik,
+            smeId: result.umkm_id,
             image: result.foto_pembatik.toString('base64') // Convert to base64
         }));
 
@@ -121,7 +127,7 @@ router.get('/umkm/:umkm_id', verifyToken, (req, res) => {
 // Update Profile Pembatik
 router.put('/:id', verifyToken, upload.single('image'), (req, res) => {
     const { id } = req.params;
-    const { name, startedYear } = req.body;
+    const { name, startedYear, description, sme_id } = req.body;
     const image = req.file ? req.file.buffer : null;
 
     if (!validateName(name)) {
@@ -131,8 +137,8 @@ router.put('/:id', verifyToken, upload.single('image'), (req, res) => {
         return res.status(400).json({ error: true, message: 'Invalid started year.' });
     }
 
-    db.query('UPDATE Profil_Pembatik SET nama_pembatik = ?, foto_pembatik = ?, tanggal_mulai = ? WHERE pembatik_id = ?',
-        [name, image, startedYear, id], (err) => {
+    db.query('UPDATE Profil_Pembatik SET nama_pembatik = ?, foto_pembatik = ?, tanggal_mulai = ?, deskripsi_pembatik = ?, umkm_id = ? WHERE pembatik_id = ?',
+        [name, image, startedYear, description, sme_id, id], (err) => {
             if (err) {
                 return res.status(500).json({ error: true, message: err.message });
             }
